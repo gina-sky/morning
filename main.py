@@ -98,6 +98,7 @@ def get_weather_ntimes(city, n=0):
     print('获取天气失败')
     exit(422)
   if w is None:
+    print(n)
     return get_weather_ntimes(city, n)
   else:
     return w
@@ -262,6 +263,7 @@ def get_wemessage(client):
 if __name__ == '__main__':
   client = get_client(app_id, app_secret)
   wm, data = get_wemessage(client)
+  print(data)
   count = 0
   try:
     for user_id in user_ids:
