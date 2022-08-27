@@ -24,7 +24,7 @@ if app_id is None or app_secret is None:
   exit(422)
 
 if not user_ids:
-  print('请设置 USER_ID，若存在多个 ID 用回车分开')
+  print('请设置 USER_ID,若存在多个 ID 用回车分开')
   exit(422)
 
 if template_id is None:
@@ -62,11 +62,15 @@ def get_birthday_left():
   return (next - today).days
 
 # 彩虹屁 接口不稳定，所以失败的话会重新调用，直到成功
-def get_words():
-  words = requests.get("https://api.shadiao.pro/chp")
+CHP_URL = "https://api.shadiao.pro/chp"
+DU_URL = "https://api.shadiao.pro/du"
+def get_words(url):
+  words = requests.get(url)
   if words.status_code != 200:
     return get_words()
   return words.json()['data']['text']
+
+# https://api.shadiao.pro/du
 
 def format_temperature(temperature):
   return math.floor(temperature)
@@ -119,8 +123,12 @@ data = {
     "value": get_birthday_left(),
     "color": get_random_color()
   },
-  "words": {
-    "value": get_words(),
+  "jokes_chp": {
+    "value": get_words(CHP_URL),
+    "color": get_random_color()
+  },
+  "jokes_cold": {
+    "value": get_words(DU_URL),
     "color": get_random_color()
   },
 }
