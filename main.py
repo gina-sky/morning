@@ -113,7 +113,7 @@ def get_wemessage(client):
   #   exit(422)
   data = {
     "city": {
-      "value": city,
+      "value": CITY_SY,
       "color": get_random_color()
     },
     "date": {
@@ -137,57 +137,57 @@ def get_wemessage(client):
       "color": get_random_color()
     },
     "airquality": {
-      "value": math.floor(weather['airQuality']),
+      "value": weather['airQuality'],
       "color": get_random_color()
     },
 
     "city_wz": {
-      "value": city,
+      "value": CITY_WZ,
       "color": get_random_color()
     },
     "weather_wz": {
-      "value": weather['weather'],
+      "value": weather_wz['weather'],
       "color": get_random_color()
     },
     "temperature_wz": {
-      "value": math.floor(weather['temp']),
+      "value": math.floor(weather_wz['temp']),
       "color": get_random_color()
     },
     "highest_wz": {
-      "value": math.floor(weather['high']),
+      "value": math.floor(weather_wz['high']),
       "color": get_random_color()
     },
     "lowest_wz": {
-      "value": math.floor(weather['low']),
+      "value": math.floor(weather_wz['low']),
       "color": get_random_color()
     },
     "airquality_wz": {
-      "value": math.floor(weather['airQuality']),
+      "value": weather_wz['airQuality'],
       "color": get_random_color()
     },
 
     "city_zh": {
-      "value": city,
+      "value": CITY_ZH,
       "color": get_random_color()
     },
     "weather_zh": {
-      "value": weather['weather'],
+      "value": weather_zh['weather'],
       "color": get_random_color()
     },
     "temperature_zh": {
-      "value": math.floor(weather['temp']),
+      "value": math.floor(weather_zh['temp']),
       "color": get_random_color()
     },
     "highest_zh": {
-      "value": math.floor(weather['high']),
+      "value": math.floor(weather_zh['high']),
       "color": get_random_color()
     },
     "lowest_zh": {
-      "value": math.floor(weather['low']),
+      "value": math.floor(weather_zh['low']),
       "color": get_random_color()
     },
     "airquality_zh": {
-      "value": math.floor(weather['airQuality']),
+      "value": weather_zh['airQuality'],
       "color": get_random_color()
     },
 
