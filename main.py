@@ -32,11 +32,14 @@ if template_id is None:
   exit(422)
 
 # weather 直接返回对象，在使用的地方用字段进行调用。
-def get_weather():
-  if city is None:
+CITY_SY = '邵阳'
+CITY_WZ = '温州'
+CITY_ZH = '珠海'
+def get_weather(c):
+  if c is None:
     print('请设置城市')
     return None
-  url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + city
+  url = "https://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + c
   res = requests.get(url).json()
   if res is None:
     return None
@@ -79,61 +82,186 @@ def format_temperature(temperature):
 def get_random_color():
   return "#%06x" % random.randint(0, 0xFFFFFF)
 
-try:
-  client = WeChatClient(app_id, app_secret)
-except WeChatClientException as e:
-  print('微信获取 token 失败，请检查 APP_ID 和 APP_SECRET，或当日调用量是否已达到微信限制。')
-  exit(502)
+def get_client(app_id, app_secret):
+  client = False
+  try:
+    client = WeChatClient(app_id, app_secret)
+  except WeChatClientException as e:
+    print('微信获取 token 失败，请检查 APP_ID 和 APP_SECRET，或当日调用量是否已达到微信限制。')
+    exit(502)
+  return client
 
-wm = WeChatMessage(client)
-weather = get_weather()
-if weather is None:
-  print('获取天气失败')
-  exit(422)
-data = {
-  "city": {
-    "value": city,
-    "color": get_random_color()
-  },
-  "date": {
-    "value": today.strftime('%Y年%m月%d日'),
-    "color": get_random_color()
-  },
-  "weather": {
-    "value": weather['weather'],
-    "color": get_random_color()
-  },
-  "temperature": {
-    "value": math.floor(weather['temp']),
-    "color": get_random_color()
-  },
-  "highest": {
-    "value": math.floor(weather['high']),
-    "color": get_random_color()
-  },
-  "lowest": {
-    "value": math.floor(weather['low']),
-    "color": get_random_color()
-  },
-  "love_days": {
-    "value": get_memorial_days_count(),
-    "color": get_random_color()
-  },
-  "birthday_left": {
-    "value": get_birthday_left(),
-    "color": get_random_color()
-  },
-  "jokes_chp": {
-    "value": get_words(CHP_URL),
-    "color": get_random_color()
-  },
-  "jokes_cold": {
-    "value": get_words(DU_URL),
-    "color": get_random_color()
-  },
-}
+def get_weather_ntimes(city, n=0):
+  w = get_weather(city)
+  n = n + 1
+  if n >= 10:
+    print('获取天气失败')
+    exit(422)
+  if w is None:
+    return get_weather_ntimes(city, n)
+  else:
+    return w
+
+def get_wemessage(client):
+  wm = WeChatMessage(client)
+  # citys = [CITY_SY, CITY_WZ, CITY_ZH]
+  weather = get_weather_ntimes(CITY_SY)
+  weather_wz = get_weather_ntimes(CITY_WZ)
+  weather_zh = get_weather_ntimes(CITY_ZH)
+  # if weather is None:
+  #   print('获取天气失败')
+  #   exit(422)
+  data = {
+    "city": {
+      "value": city,
+      "color": get_random_color()
+    },
+    "date": {
+      "value": today.strftime('%Y年%m月%d日'),
+      "color": get_random_color()
+    },
+    "weather": {
+      "value": weather['weather'],
+      "color": get_random_color()
+    },
+    "temperature": {
+      "value": math.floor(weather['temp']),
+      "color": get_random_color()
+    },
+    "highest": {
+      "value": math.floor(weather['high']),
+      "color": get_random_color()
+    },
+    "lowest": {
+      "value": math.floor(weather['low']),
+      "color": get_random_color()
+    },
+    "airquality": {
+      "value": math.floor(weather['airQuality']),
+      "color": get_random_color()
+    },
+
+    "city_wz": {
+      "value": city,
+      "color": get_random_color()
+    },
+    "weather_wz": {
+      "value": weather['weather'],
+      "color": get_random_color()
+    },
+    "temperature_wz": {
+      "value": math.floor(weather['temp']),
+      "color": get_random_color()
+    },
+    "highest_wz": {
+      "value": math.floor(weather['high']),
+      "color": get_random_color()
+    },
+    "lowest_wz": {
+      "value": math.floor(weather['low']),
+      "color": get_random_color()
+    },
+    "airquality_wz": {
+      "value": math.floor(weather['airQuality']),
+      "color": get_random_color()
+    },
+
+    "city_zh": {
+      "value": city,
+      "color": get_random_color()
+    },
+    "weather_zh": {
+      "value": weather['weather'],
+      "color": get_random_color()
+    },
+    "temperature_zh": {
+      "value": math.floor(weather['temp']),
+      "color": get_random_color()
+    },
+    "highest_zh": {
+      "value": math.floor(weather['high']),
+      "color": get_random_color()
+    },
+    "lowest_zh": {
+      "value": math.floor(weather['low']),
+      "color": get_random_color()
+    },
+    "airquality_zh": {
+      "value": math.floor(weather['airQuality']),
+      "color": get_random_color()
+    },
+
+
+    "love_days": {
+      "value": get_memorial_days_count(),
+      "color": get_random_color()
+    },
+    "birthday_left": {
+      "value": get_birthday_left(),
+      "color": get_random_color()
+    },
+    "jokes_chp": {
+      "value": get_words(CHP_URL),
+      "color": get_random_color()
+    },
+    "jokes_cold": {
+      "value": get_words(DU_URL),
+      "color": get_random_color()
+    },
+  }
+  return wm, data
+
+# wm = WeChatMessage(client)
+# weather = get_weather(CITY_SY)
+# if weather is None:
+#   print('获取天气失败')
+#   exit(422)
+# data = {
+#   "city": {
+#     "value": city,
+#     "color": get_random_color()
+#   },
+#   "date": {
+#     "value": today.strftime('%Y年%m月%d日'),
+#     "color": get_random_color()
+#   },
+#   "weather": {
+#     "value": weather['weather'],
+#     "color": get_random_color()
+#   },
+#   "temperature": {
+#     "value": math.floor(weather['temp']),
+#     "color": get_random_color()
+#   },
+#   "highest": {
+#     "value": math.floor(weather['high']),
+#     "color": get_random_color()
+#   },
+#   "lowest": {
+#     "value": math.floor(weather['low']),
+#     "color": get_random_color()
+#   },
+#   "love_days": {
+#     "value": get_memorial_days_count(),
+#     "color": get_random_color()
+#   },
+#   "birthday_left": {
+#     "value": get_birthday_left(),
+#     "color": get_random_color()
+#   },
+#   "jokes_chp": {
+#     "value": get_words(CHP_URL),
+#     "color": get_random_color()
+#   },
+#   "jokes_cold": {
+#     "value": get_words(DU_URL),
+#     "color": get_random_color()
+#   },
+# }
 
 if __name__ == '__main__':
+  client = get_client(app_id, app_secret)
+  wm, data = get_wemessage(client)
   count = 0
   try:
     for user_id in user_ids:
