@@ -1,11 +1,15 @@
 from datetime import date, datetime, timedelta
 import math
-from wechatpy import WeChatClient, WeChatClientException
+import sys
+from wechatpy import WeChatClient, WeChatClientException, WeChatComponent
 from wechatpy.client.api import WeChatMessage
+from wechatpy.client import WeChatComponentClient
 import requests
 import os
 import random
 import json
+import pickle
+import time
 
 nowtime = datetime.utcnow() + timedelta(hours=8)  # 东八区时间
 today = datetime.strptime(str(nowtime.date()), "%Y-%m-%d") #今天的日期
@@ -20,10 +24,11 @@ app_secret = os.getenv('APP_SECRET')
 user_ids = os.getenv('USER_ID', '').split("\n")
 template_id = os.getenv('TEMPLATE_ID')
 
+SYS_PATH = sys.path[0] + '/'
 if app_id is None or app_secret is None:
   print('请设置 APP_ID 和 APP_SECRET')
   try:
-    with open('greeting_6am.config', 'r') as f:
+    with open(SYS_PATH + 'greeting_6am.config', 'r') as f:
       datas = f.read()
       data_json = json.loads(datas)
       print(data_json)
@@ -97,13 +102,69 @@ def format_temperature(temperature):
 def get_random_color():
   return "#%06x" % random.randint(0, 0xFFFFFF)
 
-def get_client(app_id, app_secret):
-  client = False
+class Data_token():
+  def __init__(self, client, expire) -> None:
+    self.client = client
+    self.expire = expire
+
+def save_client_data(file, obj):
+  with open(file, 'wb') as f:
+    f.write(pickle.dumps(obj))
+    # pickle.dump(obj, f)
+
+def load_client_data(file):
+  obj = None
   try:
-    client = WeChatClient(app_id, app_secret)
-  except WeChatClientException as e:
-    print('微信获取 token 失败，请检查 APP_ID 和 APP_SECRET，或当日调用量是否已达到微信限制。')
-    exit(502)
+    with open(file, 'rb') as f:
+      obj = pickle.loads(f.read())
+      # obj = pickle.load(f)
+  except Exception as e:
+    print(e)
+  return obj
+
+# def check_client_token_expire(client):
+#   pass
+
+
+# def get_client(app_id, app_secret):
+#   client = None
+#   try:
+#     client = WeChatClient(app_id, app_secret)
+#   except WeChatClientException as e:
+#     print('微信获取 token 失败，请检查 APP_ID 和 APP_SECRET，或当日调用量是否已达到微信限制。')
+#     exit(502)
+#   # print("client" )
+#   # print(dict(client))
+#   # client.expires_at
+#   # client.access_token
+
+# return client``
+
+
+TOAKEN_FILE = SYS_PATH + 'token.dat'
+
+def get_client(app_id, app_secret):
+  
+  da_token = load_client_data(TOAKEN_FILE) 
+  now = int(time.time())
+  client = None
+  expire = None
+  if da_token is not None:
+    client = getattr(da_token, 'client')
+    expire = getattr(da_token, 'expire')
+  
+  if (client is None) or (expire <= now):
+    try:
+      client = WeChatClient(app_id, app_secret)
+
+      da_token = Data_token(client, now + 7200)
+      save_client_data(TOAKEN_FILE, da_token)
+    except WeChatClientException as e:
+      print('微信获取 token 失败，请检查 APP_ID 和 APP_SECRET，或当日调用量是否已达到微信限制。')
+      exit(502)
+  else:
+    print("use saved token")
+ 
   return client
 
 def get_weather_ntimes(city, n=0):

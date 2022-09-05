@@ -1,0 +1,3 @@
+30 06 * * * /home/pi/conda/bin/python /var/sambdoc/code/corn_job/greeting_6am.py
+30 12 * * * /home/pi/conda/bin/python /var/sambdoc/code/corn_job/greeting_6am.py
+30 18 * * * /home/pi/conda/bin/python /var/sambdoc/code/corn_job/greeting_6am.py
